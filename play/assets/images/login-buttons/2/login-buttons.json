@@ -1,0 +1,135 @@
+{
+  "frames": {
+    "student": {
+      "frame": {
+        "x": 2,
+        "y": 2,
+        "w": 356,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 356,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 358,
+        "h": 100
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "load-wizard": {
+      "frame": {
+        "x": 2,
+        "y": 106,
+        "w": 300,
+        "h": 80
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 300,
+        "h": 80
+      },
+      "sourceSize": {
+        "w": 300,
+        "h": 80
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "login": {
+      "frame": {
+        "x": 2,
+        "y": 190,
+        "w": 300,
+        "h": 80
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 300,
+        "h": 80
+      },
+      "sourceSize": {
+        "w": 300,
+        "h": 80
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "new-wizard": {
+      "frame": {
+        "x": 2,
+        "y": 274,
+        "w": 300,
+        "h": 80
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 300,
+        "h": 80
+      },
+      "sourceSize": {
+        "w": 300,
+        "h": 80
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "google-signin-btn": {
+      "frame": {
+        "x": 2,
+        "y": 358,
+        "w": 294,
+        "h": 67
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 1,
+        "w": 294,
+        "h": 67
+      },
+      "sourceSize": {
+        "w": 294,
+        "h": 68
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://free-tex-packer.com",
+    "version": "0.6.7",
+    "image": "login-buttons.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 360,
+      "h": 427
+    },
+    "scale": 1
+  }
+}
