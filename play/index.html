@@ -388,148 +388,158 @@
 
         <script>
             (() => {
-                "use strict";
+    "use strict";
 
-                const SW = window.SW || {};
-                SW.Load = SW.Load || {};
+    const SW = window.SW || {};
+    SW.Load = SW.Load || {};
 
-                const updateID = "0.12.1a";
-                const prodigyWeb = window.prodigyWeb || {};
-                prodigyWeb.gameVersion = "1-50-0";
-                window.prodigyWeb = prodigyWeb;
-                window.percentLoaded = 0;
-                SW.Load.scriptQueue = [];
+    const updateID = "0.12.1a";
+    const prodigyWeb = window.prodigyWeb || {};
+    prodigyWeb.gameVersion = "1-50-0";
+    window.prodigyWeb = prodigyWeb;
+    window.percentLoaded = 0;
+    SW.Load.scriptQueue = [];
+    SW.Load.totalScriptWeight = 0;
 
-                SW.Load.loadScript = function(file) {
-                    const script = document.createElement("script");
-                    script.src = file + "?v=" + updateID;
-                    script.async = false;
-                    document.body.appendChild(script);
-                    return script;
-                };
+    SW.Load.loadScript = function(file) {
+        const script = document.createElement("script");
+        script.src = file + "?v=" + updateID;
+        script.async = false;
+        document.body.appendChild(script);
+        return script;
+    };
 
-                SW.Load.updateLoadBar = function(percent) {
-                    window.percentLoaded = Math.min((window.percentLoaded || 0) + percent, 100);
-                    const progressBar = document.getElementById("ed-progress-bar");
-                    if (progressBar) {
-                        progressBar.style.width = window.percentLoaded + "%";
-                    }
+    SW.Load.updateLoadBar = function(percent) {
+        const clampedPercent = Math.max(0, Math.min(percent, 100));
+        window.percentLoaded = Math.min((window.percentLoaded || 0) + clampedPercent, 100);
 
-                    if (window.percentLoaded >= 100) {
-                        setTimeout(() => {
-                            const loading = document.getElementById("game-loading-container-div");
-                            if (loading) {
-                                loading.style.display = "none";
-                            }
-                        }, 1200);
-                    }
-                };
+        const progressBar = document.getElementById("ed-progress-bar");
+        if (progressBar) {
+            progressBar.style.width = window.percentLoaded + "%";
+        }
 
-                SW.Load.loadScripts = function() {
-                    if (SW.Load.scriptQueue.length === 0) {
-                        return;
-                    }
+        if (window.percentLoaded >= 100) {
+            setTimeout(() => {
+                const loading = document.getElementById("game-loading-container-div");
+                if (loading) {
+                    loading.style.display = "none";
+                }
+            }, 1200);
+        }
+    };
 
-                    const item = SW.Load.scriptQueue[0];
-                    const script = SW.Load.loadScript(item.src);
+    SW.Load.loadScripts = function() {
+        if (SW.Load.scriptQueue.length === 0) {
+            SW.Load.updateLoadBar(100 - (window.percentLoaded || 0));
+            return;
+        }
 
-                    script.onload = function() {
-                        SW.Load.updateLoadBar(item.percent);
-                        SW.Load.scriptQueue.shift();
-                        SW.Load.loadScripts();
-                        console.log("Script loaded: " + item.src);
-                    };
+        const item = SW.Load.scriptQueue[0];
+        const script = SW.Load.loadScript(item.src);
 
-                    script.onerror = function() {
-                        console.error("Failed to load: " + item.src);
-                        SW.Load.toggleErrorScreen(true);
-                        SW.Load.setErrorScreenText(SW.Load.ERROR_TITLE_FAIL, "Failed to load: " + item.src);
-                    };
-                };
+        script.onload = function() {
+            const normalizedPercent = (item.percent / SW.Load.totalScriptWeight) * 100;
+            SW.Load.updateLoadBar(normalizedPercent);
+            SW.Load.scriptQueue.shift();
+            SW.Load.loadScripts();
+            console.log("Script loaded: " + item.src);
+        };
 
-                SW.Load.addScript = function(src, percent) {
-                    SW.Load.scriptQueue.push({ src: src, percent: percent });
-                };
+        script.onerror = function() {
+            console.error("Failed to load: " + item.src);
+            SW.Load.toggleErrorScreen(true);
+            SW.Load.setErrorScreenText(
+                SW.Load.ERROR_TITLE_FAIL,
+                "Failed to load: " + item.src
+            );
+        };
+    };
 
-                SW.Load.loadGame = function() {
-                    SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/lodash.min.js", 3);
-                    SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/backbone-min.js", 5);
-                    SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/phaser.min.js", 10);
-                    SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/jquery.min.js", 3);
-                    SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/easystar.min.js", 1);
-                    SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/socket.io.min.js", 2);
-                    SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/phaser-spine.min.js", 3);
-                    SW.Load.addScript("https://code.prodigygame.com/lib/particle-storm.min.js", 2);
-                    SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/webfontloader.js", 1);
-                    SW.Load.addScript("https://oldprodigy.onrender.com/play/edu/controls/js/controls.min.js", 15);
-                    SW.Load.addScript("https://oldprodigy.onrender.com/play/edu/question-interface/js/question.min.js", 5);
-                    SW.Load.addScript("https://oldprodigy.onrender.com/play/js/game.min.js", 15);
-                    SW.Load.loadScripts();
+    SW.Load.addScript = function(src, percent) {
+        SW.Load.totalScriptWeight += percent;
+        SW.Load.scriptQueue.push({ src: src, percent: percent });
+    };
 
-                    document.addEventListener("contextmenu", function(event) {
-                        event.preventDefault();
-                    }, false);
+    SW.Load.loadGame = function() {
+        SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/lodash.min.js", 3);
+        SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/backbone-min.js", 5);
+        SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/phaser.min.js", 10);
+        SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/jquery.min.js", 3);
+        SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/easystar.min.js", 1);
+        SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/socket.io.min.js", 2);
+        SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/phaser-spine.min.js", 3);
+        SW.Load.addScript("https://code.prodigygame.com/lib/particle-storm.min.js", 2);
+        SW.Load.addScript("https://oldprodigy.onrender.com/play/lib/webfontloader.js", 1);
+        SW.Load.addScript("https://oldprodigy.onrender.com/play/edu/controls/js/controls.min.js", 15);
+        SW.Load.addScript("https://oldprodigy.onrender.com/play/edu/question-interface/js/question.min.js", 5);
+        SW.Load.addScript("https://oldprodigy.onrender.com/play/js/game.min.js", 15);
 
-                    window.onresize = function() {
-                        window.scrollTo(0, 0);
-                    };
+        SW.Load.loadScripts();
 
-                    prodigyWeb.membershipFlow = {
-                        open: function() {},
-                        close: function() {}
-                    };
-                };
+        document.addEventListener("contextmenu", function(event) {
+            event.preventDefault();
+        }, false);
 
-                SW.Load.setLoadingVisible = function(visible) {
-                    const container = document.getElementById("game-loading-container-div");
-                    if (container) {
-                        container.style.display = visible ? "" : "none";
-                    }
-                };
+        window.onresize = function() {
+            window.scrollTo(0, 0);
+        };
 
-                SW.Load.ERROR_TITLE_DEFAULT = "Uh oh! We were unable to connect to the Prodigy servers.";
-                SW.Load.ERROR_TITLE_FAIL = "Uh oh! We were unable to load the game files properly.";
-                SW.Load.ERROR_DESCRIPTION_DEFAULT = "Please ensure that you are connected to the Internet, and try reloading the page.";
+        prodigyWeb.membershipFlow = {
+            open: function() {},
+            close: function() {}
+        };
+    };
 
-                SW.Load.isErrorScreen = function() {
-                    const errorDiv = document.getElementById("error-div");
-                    return !!(errorDiv && errorDiv.style.display !== "none");
-                };
+    SW.Load.setLoadingVisible = function(visible) {
+        const container = document.getElementById("game-loading-container-div");
+        if (container) {
+            container.style.display = visible ? "" : "none";
+        }
+    };
 
-                SW.Load.toggleErrorScreen = function(show) {
-                    const errorDiv = document.getElementById("error-div");
-                    const loadingDiv = document.getElementById("loading-div");
+    SW.Load.ERROR_TITLE_DEFAULT = "Uh oh! We were unable to connect to the Prodigy servers.";
+    SW.Load.ERROR_TITLE_FAIL = "Uh oh! We were unable to load the game files properly.";
+    SW.Load.ERROR_DESCRIPTION_DEFAULT = "Please ensure that you are connected to the Internet, and try reloading the page.";
 
-                    if (errorDiv) {
-                        errorDiv.style.display = show ? "" : "none";
-                    }
+    SW.Load.isErrorScreen = function() {
+        const errorDiv = document.getElementById("error-div");
+        return !!(errorDiv && errorDiv.style.display !== "none");
+    };
 
-                    if (loadingDiv) {
-                        loadingDiv.style.display = show ? "none" : "";
-                    }
-                };
+    SW.Load.toggleErrorScreen = function(show) {
+        const errorDiv = document.getElementById("error-div");
+        const loadingDiv = document.getElementById("loading-div");
 
-                SW.Load.setErrorScreenText = function(title, description) {
-                    const titleNode = document.getElementById("error-div-title");
-                    const descriptionNode = document.getElementById("error-div-description");
+        if (errorDiv) {
+            errorDiv.style.display = show ? "" : "none";
+        }
 
-                    if (titleNode) {
-                        titleNode.innerHTML = title || SW.Load.ERROR_TITLE_DEFAULT;
-                    }
+        if (loadingDiv) {
+            loadingDiv.style.display = show ? "none" : "";
+        }
+    };
 
-                    if (descriptionNode) {
-                        descriptionNode.innerHTML = description || SW.Load.ERROR_DESCRIPTION_DEFAULT;
-                    }
-                };
+    SW.Load.setErrorScreenText = function(title, description) {
+        const titleNode = document.getElementById("error-div-title");
+        const descriptionNode = document.getElementById("error-div-description");
 
-                window.addEventListener("load", function() {
-                    SW.Load.loadGame();
-                });
+        if (titleNode) {
+            titleNode.innerHTML = title || SW.Load.ERROR_TITLE_DEFAULT;
+        }
 
-                window.updateLoadBar = SW.Load.updateLoadBar;
-                window.toggleErrorScreen = SW.Load.toggleErrorScreen;
-                window.setErrorScreenText = SW.Load.setErrorScreenText;
-            })();
+        if (descriptionNode) {
+            descriptionNode.innerHTML = description || SW.Load.ERROR_DESCRIPTION_DEFAULT;
+        }
+    };
+
+    window.addEventListener("load", function() {
+        SW.Load.loadGame();
+    });
+
+    window.updateLoadBar = SW.Load.updateLoadBar;
+    window.toggleErrorScreen = SW.Load.toggleErrorScreen;
+    window.setErrorScreenText = SW.Load.setErrorScreenText;
+})();
         </script>
     </body>
 </html>
