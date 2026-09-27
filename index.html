@@ -12,8 +12,6 @@
 
         <script>
         !function() {
-            if (!window.location.href.includes("play/") && window.location.hostname !== "localhost")
-                return;
             "use strict";
             var SW = SW || {};
             SW.Load = {};
@@ -58,8 +56,9 @@
                         console.log("Script loaded: " + a.src);
                     };
                     t.onerror = function() {
+                        console.error("Failed to load: " + a.src);
                         SW.Load.toggleErrorScreen(true);
-                        SW.Load.setErrorScreenText(SW.Load.ERROR_TITLE_FAIL);
+                        SW.Load.setErrorScreenText(SW.Load.ERROR_TITLE_FAIL, "Failed to load: " + a.src);
                     };
                     SW.Load.scriptQueue.splice(0, 1);
                 }
@@ -109,11 +108,12 @@
             };
 
             SW.Load.ERROR_TITLE_DEFAULT = "Uh oh! We were unable to connect to the Prodigy servers.";
-            SW.Load.ERROR_TITLE_FAIL = "Uh oh! We were unable load the game files properly.";
+            SW.Load.ERROR_TITLE_FAIL = "Uh oh! We were unable to load the game files properly.";
             SW.Load.ERROR_DESCRIPTION_DEFAULT = "Please ensure that you are connected to the Internet, and try reloading the page.";
 
             SW.Load.isErrorScreen = function() {
-                return "none" !== document.getElementById("error-div").style.display;
+                var errorDiv = document.getElementById("error-div");
+                return errorDiv ? "none" !== errorDiv.style.display : false;
             };
 
             SW.Load.toggleErrorScreen = function(e) {
